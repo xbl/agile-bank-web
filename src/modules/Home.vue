@@ -8,11 +8,18 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import HelloWorld from '@/components/HelloWorld.vue'; // @ is an alias to /src
+import API from '@/api';
 
 @Component({
   components: {
     HelloWorld,
   },
 })
-export default class Home extends Vue {}
+export default class Home extends Vue {
+  // eslint-disable-next-line class-methods-use-this
+  public async created() {
+    const list = await API.getQuestions();
+    console.log(list);
+  }
+}
 </script>
