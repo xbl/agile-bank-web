@@ -37,12 +37,12 @@ export default class SingleChoice extends Vue {
   //   }
 
   @Emit() private input(data: string) {
+    console.log(data);
     console.log(this);
   }
 
   private changeValue(v: string) {
-    const data = v;
-    this.input(data);
+    this.input(v);
   }
 }
 </script>

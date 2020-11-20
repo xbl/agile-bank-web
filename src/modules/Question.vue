@@ -6,20 +6,30 @@
       :title="singleqes.title"
       :hint="singleqes.hint"
       :options="singleqes.options"
-      :value="SingleValue"
-      @input="updateValue">
+      v-model="SingleValue">
     </SingleChoice>
+
+    <MultipleChoice
+      :id="q1.id"
+      :title="q1.title"
+      :hint="q1.hint"
+      :options="q1.options"
+      v-model="MultipleValue">
+    </MultipleChoice>
+
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import SingleChoice from '@/components/SingleChoice.vue';
+import MultipleChoice from '@/components/MultipleChoice.vue';
 import API from '@/api';
 
 @Component({
   components: {
     SingleChoice,
+    MultipleChoice,
   },
 })
 export default class Question extends Vue {
@@ -29,15 +39,13 @@ export default class Question extends Vue {
 
   SingleValue = '';
 
-  updateValue(data: string) {
-    this.SingleValue = data;
-    console.log(this.SingleValue);
-  }
+  MultipleValue: Array<string> = new Array<string>();
 
-  public async created() {
+  public async mounted() {
     const res = await API.getQuestions();
     console.log(res);
     this.qesList = res.data;
+    [this.q1] = this.qesList;
   }
 }
 </script>
