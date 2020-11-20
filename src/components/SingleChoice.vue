@@ -7,8 +7,10 @@
           <div class="singlechoice_hint">{{ hint }}</div>
         </div>
         <div class="singlechoice_option" v-for="(opt,index) in options" :key="index">
-          <input type="radio" :name="id" :value="opt" @click="changeValue(opt)">
-          <label>{{ opt }}</label>
+          <label>
+            <input type="radio" :name="id" :value="opt" @click="changeValue(opt)">
+            {{ opt }}
+          </label>
         </div>
       </div>
   </div>
@@ -42,6 +44,7 @@ export default class SingleChoice extends Vue {
   }
 
   private changeValue(v: string) {
+    const data = v;
     this.input(v);
   }
 }
