@@ -1,15 +1,16 @@
 <template>
-  <div class="multiplechoice_wrap">
+  <div class="multiplechoice-wrap">
       <div>{{ id }}：</div>
       <div>
-        <div class="multiplechoice_header">
-          <div class="multiplechoice_title">{{ title }}</div>
-          <div class="multiplechoice_hint">{{ hint }}</div>
+        <div class="multiplechoice-header">
+          <div class="multiplechoice-title">{{ title }}</div>
+          <div class="multiplechoice-hint">{{ hint }}</div>
         </div>
-        <div class="multiplechoice_option" v-for="(opt,index) in options" :key="index">
-          <input type="checkbox" :name="id" :value="opt" v-model="checkedOpts"
-          @change="changeMultipleValue(checkedOpts)">
-          <label>{{ opt }}</label>
+        <div class="multiplechoice-option" v-for="(opt,index) in options" :key="index">
+          <label>
+            <input type="checkbox" :name="id" :value="opt" v-model="checkedOpts"
+             @change="changeMultipleValue(checkedOpts)">{{ opt }}
+          </label>
         </div>
       </div>
   </div>
@@ -46,16 +47,16 @@ export default class MultipleChoice extends Vue {
 </script>
 
 <style lang="stylus" scoped>
-.multiplechoice_wrap
+.multiplechoice-wrap
     text-align left
     font-size 12px
     display flex
-    .multiplechoice_title
+    .multiplechoice-title
         font-weight bold
-    .multiplechoice_hint
+    .multiplechoice-hint
         margin-top 2px
         color #999999
-    .multiplechoice_option
+    .multiplechoice-option
         margin-top 5px
         label
             margin-left 3px

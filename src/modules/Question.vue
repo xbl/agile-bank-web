@@ -1,5 +1,5 @@
 <template>
-  <div class="question_wrap">
+  <div class="question-wrap">
     <SingleChoice style="margin-top:10px;"
       v-for="singleqes in qesList" :key="singleqes.id"
       :id="singleqes.id"
@@ -51,7 +51,7 @@ export default class Question extends Vue {
 </script>
 
 <style lang="stylus" scoped>
-.question_wrap
+.question-wrap
   margin 0 auto
   width 30%
 </style>
