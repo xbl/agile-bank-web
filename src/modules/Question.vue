@@ -1,12 +1,14 @@
 <template>
   <div class="question-wrap" v-if="qesShow">
+    {{ qesCurrent.answer }}
     <div class="question-body">
       <SingleChoice v-if="qesCurrent.type === 'SingleSelection'"
         :id="qesCurrent.id"
         :title="qesCurrent.title"
         :hint="qesCurrent.hint"
         :options="qesCurrent.options"
-        v-model="singleValue">
+        :value="qesCurrent.answer"
+        @input="changeAns">
       </SingleChoice>
       <MultipleChoice v-else-if="qesCurrent.type === 'MultiSelection'"
         :id="qesCurrent.id"
@@ -18,8 +20,10 @@
       <div v-else>{{ qesCurrent.id}}:{{qesCurrent.title }}</div>
     </div>
     <div class="question-button">
-      <button type="button" class="qusbtn" @click="preQesFn" :disabled="preQesBtn">上一题</button>
-      <button type="button" class="qusbtn" @click="nextQesFn" :disabled="nextQesBtn">下一题</button>
+      <button type="button" class="qusbtn" @click="preQesFn" v-if="numCurrent !== 0"
+       :disabled="preBtnDisabled">上一题</button>
+      <button type="button" class="qusbtn" @click="nextQesFn"
+       :disabled="nextBtnDisabled">下一题</button>
     </div>
     <div class="question-submit" v-if="numCurrent === (qesList.length - 1)">
       <input type="submit" class="subbtn" value="交卷" @click="submitQesFn">
@@ -54,58 +58,69 @@ export default class Question extends Vue {
 
   multipleValue = [];
 
-  qesCurrent = {};
+  qesCurrent = { answer: String };
+
+  // qesAnswer: Array<string> = new Array<string>();
 
   numCurrent = 0;
 
-  preQesBtn =true;
+  preBtnDisabled =true;
 
-  nextQesBtn = true;
+  nextBtnDisabled = true;
 
   @Watch('numCurrent')
   numCurrentChange() {
     console.log(this.numCurrent);
     if (this.numCurrent === 0) {
-      this.preQesBtn = true;
-      this.nextQesBtn = false;
+      this.preBtnDisabled = true;
+      this.nextBtnDisabled = false;
     } else if (this.numCurrent === this.qesList.length - 1) {
-      this.preQesBtn = false;
-      this.nextQesBtn = true;
+      this.preBtnDisabled = false;
+      this.nextBtnDisabled = true;
     } else {
-      this.preQesBtn = false;
-      this.nextQesBtn = false;
+      this.preBtnDisabled = false;
+      this.nextBtnDisabled = false;
     }
   }
 
   @Watch('singleValue')
   singleValueChange() {
-    console.log('singleValueChange');
     if (this.singleValue !== '') {
-      this.nextQesBtn = false;
-      this.singleValueList[this.numCurrent] = this.singleValue;
+      this.nextBtnDisabled = false;
+      // this.qesCurrent.answer[0] = this.singleValue;
     } else {
-      this.nextQesBtn = true;
+      this.nextBtnDisabled = true;
     }
-    console.log(this.singleValueList);
   }
 
-  @Watch('multipleValue')
-  multipleValueChange() {
-    console.log('multipleValueChange');
-    if (this.multipleValue.length !== 0) {
-      this.nextQesBtn = false;
-      this.multipleValueList[this.numCurrent] = this.multipleValue;
-    } else {
-      this.nextQesBtn = true;
-    }
-    console.log(this.singleValueList);
+  @Watch('qesCurrent', { deep: true })
+  qesCurrentChange() {
+    console.log(this.qesCurrent);
   }
+
+  // @Watch('multipleValue')
+  // multipleValueChange() {
+  //   console.log('multipleValueChange');
+  //   if (this.multipleValue.length !== 0) {
+  //     this.nextBtnDisabled = false;
+  //     this.qesCurrent.answer = this.multipleValue;
+  //   } else {
+  //     this.nextBtnDisabled = true;
+  //   }
+  //   console.log(this.qesCurrent);
+  // }
 
   preQesFn() {
     if (this.numCurrent > 0) {
       this.numCurrent -= 1;
     }
     this.qesCurrent = this.qesList[this.numCurrent];
+  }
+
+  changeAns(val: string) {
+    console.log(val);
+    this.qesCurrent.answer = val;
+    console.log(this.qesCurrent);
   }
 
   nextQesFn() {
@@ -129,6 +144,7 @@ export default class Question extends Vue {
     this.qesList = res.data;
     [this.qesCurrent] = this.qesList;
     this.qesShow = true;
+    this.qesCurrent.answer = '';
   }
 }
 </script>
