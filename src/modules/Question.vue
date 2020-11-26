@@ -1,33 +1,42 @@
 <template>
   <div class="question-wrap" v-show="qesShow">
-    {{ qesCurrent.answer }}
-    <div class="question-body">
-      <SingleChoice v-show="qesCurrent.type === 'SingleSelection'"
-        :id="qesCurrent.id"
-        :title="qesCurrent.title"
-        :hint="qesCurrent.hint"
-        :options="qesCurrent.options"
-        v-model="qesCurrent.answer[0]"
-        >
-      </SingleChoice>
-      <MultipleChoice v-show="qesCurrent.type === 'MultiSelection'"
-        :id="qesCurrent.id"
-        :title="qesCurrent.title"
-        :hint="qesCurrent.hint"
-        :options="qesCurrent.options"
-        v-model="qesCurrent.answer">
-      </MultipleChoice>
-      <div>{{ qesCurrent.id}}:{{qesCurrent.title }}</div>
-    </div>
-    <div class="question-button">
-      <button type="button" class="qusbtn" @click="preQesFn" v-if="numCurrent !== 0"
+    <div v-if="isDoing">
+      <div class="question-body">
+        <SingleChoice v-show="qesCurrent.type === 'SingleSelection'"
+          :id="qesCurrent.id"
+          :title="qesCurrent.title"
+          :hint="qesCurrent.hint"
+          :options="qesCurrent.options"
+          v-model="qesCurrent.answer[0]">
+        </SingleChoice>
+        <MultipleChoice v-show="qesCurrent.type === 'MultiSelection'"
+          :id="qesCurrent.id"
+          :title="qesCurrent.title"
+          :hint="qesCurrent.hint"
+          :options="qesCurrent.options"
+          v-model="qesCurrent.answer">
+        </MultipleChoice>
+        <InputText v-show="qesCurrent.type === 'Memo'"
+          :id="qesCurrent.id"
+          :title="qesCurrent.title"
+          :hint="qesCurrent.hint"
+          :options="qesCurrent.options"
+          v-model="qesCurrent.answer[0]">
+        </InputText>
+      </div>
+      <div class="question-button">
+      <button type="button" class="qusbtn" @click="preQesFn" v-show="numCurrent !== 0"
        :disabled="preBtnDisabled">上一题</button>
       <button type="button" class="qusbtn" @click="nextQesFn"
-       :disabled="!qesCurrent.answer.length">下一题</button>
+        v-show="numCurrent !== qesList.length-1"
+        :disabled="!qesCurrent.answer.length">下一题</button>
+      </div>
+      <div class="question-submit" v-if="numCurrent === (qesList.length - 1)">
+        <input type="submit" class="subbtn" value="交卷" @click="submitQesFn"
+         :disabled="!qesCurrent.answer.length">
+      </div>
     </div>
-    <div class="question-submit" v-if="numCurrent === (qesList.length - 1)">
-      <input type="submit" class="subbtn" value="交卷" @click="submitQesFn">
-    </div>
+    <div v-else>问卷提交，感谢参与！</div>
   </div>
 </template>
 
@@ -35,6 +44,7 @@
 import { Component, Vue, Watch } from 'vue-property-decorator';
 import SingleChoice from '@/components/SingleChoice.vue';
 import MultipleChoice from '@/components/MultipleChoice.vue';
+import InputText from '@/components/InputText.vue';
 import API from '@/api';
 import QuestionModel from './model/question';
 
@@ -42,16 +52,15 @@ import QuestionModel from './model/question';
   components: {
     SingleChoice,
     MultipleChoice,
+    InputText,
   },
 })
 export default class Question extends Vue {
+  public qesCurrent: QuestionModel = new QuestionModel();
+
   qesShow = false;
 
   qesList = [];
-
-  answerList = new Map();
-
-  public qesCurrent: QuestionModel = new QuestionModel();
 
   numCurrent = 0;
 
@@ -59,9 +68,14 @@ export default class Question extends Vue {
 
   nextBtnDisabled = true;
 
+  answers: Array<any> = new Array<any>();
+
+  qesAnswer = { id: String, selections: [] };
+
+  isDoing = true;
+
   @Watch('numCurrent')
   numCurrentChange() {
-    console.log(this.numCurrent);
     if (this.numCurrent === 0) {
       this.preBtnDisabled = true;
       this.nextBtnDisabled = false;
@@ -89,15 +103,23 @@ export default class Question extends Vue {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  submitQesFn() {
+  async submitQesFn() {
     console.log('交卷');
+    this.answers = this.qesList.map((question: any) => {
+      this.isDoing = false;
+      this.numCurrent += 1;
+      return { id: question.id, selections: question.answer };
+    });
+    console.log(this.answers);
+    const res = await API.opstAssessments({ answers: this.answers });
+    console.log(res);
   }
 
   public async created() {
     const res = await API.getQuestions();
-    this.qesList = res.data.map((qestion: any) => {
+    this.qesList = res.data.map((question: any) => {
       const q = new QuestionModel();
-      q.from(qestion);
+      q.from(question);
       return q;
     });
     [this.qesCurrent] = this.qesList;
@@ -137,5 +159,8 @@ export default class Question extends Vue {
       background-color #e9686b
       letter-spacing 20px
       &:hover
-          background-color #ba3537
+          cursor pointer
+    .subbtn[disabled]
+      &:hover
+        cursor not-allowed
 </style>

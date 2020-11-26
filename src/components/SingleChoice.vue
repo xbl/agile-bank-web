@@ -9,7 +9,7 @@
         <div class="singlechoice-option" v-for="(opt,index) in options" :key="index">
           <label>
             <input type="radio" :name="id" :value="opt"
-              :checked="value === opt" @click="$emit('input', opt)">
+              :checked="value == opt" @click="$emit('input', opt)">
             {{ opt }}
           </label>
         </div>
