@@ -11,7 +11,7 @@ export default class QuestionModel {
 
   type!: string;
 
-  public from(json: any): void {
+  public constructor(json: any) {
     this.id = json.id;
     this.title = json.title;
     this.hint = json.hint;

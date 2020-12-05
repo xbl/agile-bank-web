@@ -117,11 +117,7 @@ export default class Question extends Vue {
 
   public async created() {
     const res = await API.getQuestions();
-    this.qesList = res.data.map((question: any) => {
-      const q = new QuestionModel();
-      q.from(question);
-      return q;
-    });
+    this.qesList = res.data.map((question: any) => new QuestionModel(question));
     [this.qesCurrent] = this.qesList;
     this.qesShow = true;
   }
