@@ -57,17 +57,11 @@ import QuestionModel from './model/question';
 })
 export default class Question extends Vue {
   public qesCurrent: QuestionModel = new QuestionModel();
-
   qesShow = false;
-
   qesList = [];
-
   numCurrent = 0;
-
   preBtnDisabled =true;
-
   nextBtnDisabled = true;
-
   isDoing = true;
 
   @Watch('numCurrent')
@@ -93,7 +87,7 @@ export default class Question extends Vue {
 
   nextQesFn() {
     if (this.numCurrent < (this.qesList.length - 1)) {
-      this.numCurrent += 1;
+      this.numCurrent++;
     }
     this.qesCurrent = this.qesList[this.numCurrent];
   }
@@ -102,7 +96,6 @@ export default class Question extends Vue {
   async submitQesFn() {
     const answers = this.qesList.map((question: QuestionModel) => {
       this.isDoing = false;
-      this.numCurrent += 1;
       return { id: question.id, selections: question.answer };
     });
     await API.opstAssessments({ answers });
