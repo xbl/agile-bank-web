@@ -105,19 +105,17 @@ export default class Question extends Vue {
   // eslint-disable-next-line class-methods-use-this
   async submitQesFn() {
     console.log('交卷');
-    this.answers = this.qesList.map((question: any) => {
+    this.answers = this.qesList.map((question: QuestionModel) => {
       this.isDoing = false;
       this.numCurrent += 1;
       return { id: question.id, selections: question.answer };
     });
-    console.log(this.answers);
-    const res = await API.opstAssessments({ answers: this.answers });
-    console.log(res);
+    await API.opstAssessments({ answers: this.answers });
   }
 
   public async created() {
-    const res = await API.getQuestions();
-    this.qesList = res.data.map((question: any) => new QuestionModel(question));
+    const { data } = await API.getQuestions();
+    this.qesList = data.map((question: object) => new QuestionModel(question));
     [this.qesCurrent] = this.qesList;
     this.qesShow = true;
   }
