@@ -25,11 +25,9 @@
         </InputText>
       </div>
       <div class="question-button">
-      <button type="button" class="qusbtn" @click="preQesFn" v-show="numCurrent !== 0"
-       :disabled="preBtnDisabled">上一题</button>
-      <button type="button" class="qusbtn" @click="nextQesFn"
-        v-show="numCurrent !== qesList.length-1"
-        :disabled="!qesCurrent.answer.length">下一题</button>
+        <button type="button" class="qusbtn" @click="preQesFn" v-show="showPreButton">上一题</button>
+        <button type="button" class="qusbtn" @click="nextQesFn" v-show="showNextButton"
+          :disabled="disabledNextButton">下一题</button>
       </div>
       <div class="question-submit" v-if="numCurrent === (qesList.length - 1)">
         <input type="submit" class="subbtn" value="交卷" @click="submitQesFn"
@@ -64,18 +62,16 @@ export default class Question extends Vue {
   loading = false;
   finished = false;
 
-  @Watch('numCurrent')
-  numCurrentChange() {
-    if (this.numCurrent === 0) {
-      this.preBtnDisabled = true;
-      this.nextBtnDisabled = false;
-    } else if (this.numCurrent === this.qesList.length - 1) {
-      this.preBtnDisabled = false;
-      this.nextBtnDisabled = true;
-    } else {
-      this.preBtnDisabled = false;
-      this.nextBtnDisabled = false;
-    }
+  get showPreButton() {
+    return this.numCurrent !== 0;
+  }
+
+  get showNextButton() {
+    return this.numCurrent !== this.qesList.length - 1;
+  }
+
+  get disabledNextButton() {
+    return !this.qesCurrent.answer.length;
   }
 
   preQesFn() {
