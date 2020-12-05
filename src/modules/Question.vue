@@ -79,17 +79,15 @@ export default class Question extends Vue {
   }
 
   preQesFn() {
-    if (this.numCurrent > 0) {
-      this.numCurrent -= 1;
-    }
-    this.qesCurrent = this.qesList[this.numCurrent];
+    this.numCurrent--;
+    const index = Math.max(this.numCurrent, 0);
+    this.qesCurrent = this.qesList[index];
   }
 
   nextQesFn() {
-    if (this.numCurrent < (this.qesList.length - 1)) {
-      this.numCurrent++;
-    }
-    this.qesCurrent = this.qesList[this.numCurrent];
+    this.numCurrent++;
+    const index = Math.min(this.numCurrent, this.qesList.length - 1);
+    this.qesCurrent = this.qesList[index];
   }
 
   async submitQesFn() {
