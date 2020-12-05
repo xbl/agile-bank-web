@@ -25,11 +25,12 @@
         </InputText>
       </div>
       <div class="question-button">
-        <button type="button" class="qusbtn" @click="preQesFn" v-show="showPreButton">上一题</button>
-        <button type="button" class="qusbtn" @click="nextQesFn" v-show="showNextButton"
+        <button type="button" class="qusbtn" @click="pager.pre()"
+          v-show="pager.showPreButton">上一题</button>
+        <button type="button" class="qusbtn" @click="pager.next()" v-show="pager.showNextButton"
           :disabled="disabledNextButton">下一题</button>
       </div>
-      <div class="question-submit" v-if="numCurrent === (qesList.length - 1)">
+      <div class="question-submit" v-if="pager.isLastPage()">
         <input type="submit" class="subbtn" value="交卷" @click="submitQesFn"
          :disabled="!qesCurrent.answer.length">
       </div>
@@ -38,12 +39,13 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Vue, Watch } from 'vue-property-decorator';
 import SingleChoice from '@/components/SingleChoice.vue';
 import MultipleChoice from '@/components/MultipleChoice.vue';
 import InputText from '@/components/InputText.vue';
 import API from '@/api';
 import QuestionModel from './model/question';
+import Pager from './model/pager';
 
 @Component({
   components: {
@@ -53,36 +55,18 @@ import QuestionModel from './model/question';
   },
 })
 export default class Question extends Vue {
-  public qesCurrent: QuestionModel = new QuestionModel();
+  qesCurrent: QuestionModel = new QuestionModel();
+  pager: Pager = new Pager(0);
   qesList = [];
-  numCurrent = 0;
-  preBtnDisabled =true;
-  nextBtnDisabled = true;
   loading = false;
-  finished = false;
-
-  get showPreButton() {
-    return this.numCurrent !== 0;
-  }
-
-  get showNextButton() {
-    return this.numCurrent !== this.qesList.length - 1;
-  }
 
   get disabledNextButton() {
     return !this.qesCurrent.answer.length;
   }
 
-  preQesFn() {
-    this.numCurrent--;
-    const index = Math.max(this.numCurrent, 0);
-    this.qesCurrent = this.qesList[index];
-  }
-
-  nextQesFn() {
-    this.numCurrent++;
-    const index = Math.min(this.numCurrent, this.qesList.length - 1);
-    this.qesCurrent = this.qesList[index];
+  @Watch('pager.currentIndex')
+  watchIndexChangeQuestion() {
+    this.qesCurrent = this.qesList[this.pager.currentIndex];
   }
 
   async submitQesFn() {
@@ -104,6 +88,7 @@ export default class Question extends Vue {
       const { data } = await API.getQuestions();
       this.qesList = data.map((question: object) => new QuestionModel(question));
       [this.qesCurrent] = this.qesList;
+      this.pager = new Pager(this.qesList.length);
     } catch (error) {
       alert('网络请求失败!');
     }
