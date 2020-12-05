@@ -1,6 +1,6 @@
 <template>
   <div class="question-wrap">
-    <div v-if="!loading && !finished">
+    <div v-if="!loading">
       <div class="question-body">
         <SingleChoice v-show="qesCurrent.type === 'SingleSelection'"
           :id="qesCurrent.id"
@@ -34,12 +34,11 @@
          :disabled="!qesCurrent.answer.length">
       </div>
     </div>
-    <div v-show="finished">问卷提交，感谢参与！</div>
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Vue, Watch } from 'vue-property-decorator';
+import { Component, Vue } from 'vue-property-decorator';
 import SingleChoice from '@/components/SingleChoice.vue';
 import MultipleChoice from '@/components/MultipleChoice.vue';
 import InputText from '@/components/InputText.vue';
@@ -92,7 +91,7 @@ export default class Question extends Vue {
       const answers = this.qesList.map((question: QuestionModel) => (
         { id: question.id, selections: question.answer }));
       await API.opstAssessments({ answers });
-      this.finished = true;
+      this.$router.push('/finished');
     } catch (error) {
       alert('网络请求失败!');
     }
