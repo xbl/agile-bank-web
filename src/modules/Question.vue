@@ -32,7 +32,7 @@
       </div>
       <div class="question-submit" v-if="pager.isLastPage()">
         <input type="submit" class="subbtn" value="交卷" @click="submitQesFn"
-         :disabled="!qesCurrent.answer.length">
+         :disabled="disabledNextButton">
       </div>
     </div>
   </div>
