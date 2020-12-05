@@ -1,6 +1,6 @@
 <template>
-  <div class="question-wrap" v-show="qesShow">
-    <div v-if="isDoing">
+  <div class="question-wrap">
+    <div v-if="!loading && !finished">
       <div class="question-body">
         <SingleChoice v-show="qesCurrent.type === 'SingleSelection'"
           :id="qesCurrent.id"
@@ -36,7 +36,7 @@
          :disabled="!qesCurrent.answer.length">
       </div>
     </div>
-    <div v-else>问卷提交，感谢参与！</div>
+    <div v-show="finished">问卷提交，感谢参与！</div>
   </div>
 </template>
 
@@ -57,12 +57,12 @@ import QuestionModel from './model/question';
 })
 export default class Question extends Vue {
   public qesCurrent: QuestionModel = new QuestionModel();
-  qesShow = false;
   qesList = [];
   numCurrent = 0;
   preBtnDisabled =true;
   nextBtnDisabled = true;
-  isDoing = true;
+  loading = false;
+  finished = false;
 
   @Watch('numCurrent')
   numCurrentChange() {
@@ -92,20 +92,29 @@ export default class Question extends Vue {
     this.qesCurrent = this.qesList[this.numCurrent];
   }
 
-  // eslint-disable-next-line class-methods-use-this
   async submitQesFn() {
-    const answers = this.qesList.map((question: QuestionModel) => {
-      this.isDoing = false;
-      return { id: question.id, selections: question.answer };
-    });
-    await API.opstAssessments({ answers });
+    this.loading = true;
+    try {
+      const answers = this.qesList.map((question: QuestionModel) => (
+        { id: question.id, selections: question.answer }));
+      await API.opstAssessments({ answers });
+      this.finished = true;
+    } catch (error) {
+      alert('网络请求失败!');
+    }
+    this.loading = false;
   }
 
   public async created() {
-    const { data } = await API.getQuestions();
-    this.qesList = data.map((question: object) => new QuestionModel(question));
-    [this.qesCurrent] = this.qesList;
-    this.qesShow = true;
+    this.loading = true;
+    try {
+      const { data } = await API.getQuestions();
+      this.qesList = data.map((question: object) => new QuestionModel(question));
+      [this.qesCurrent] = this.qesList;
+    } catch (error) {
+      alert('网络请求失败!');
+    }
+    this.loading = false;
   }
 }
 </script>
