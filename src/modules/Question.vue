@@ -68,10 +68,6 @@ export default class Question extends Vue {
 
   nextBtnDisabled = true;
 
-  answers: Array<any> = new Array<any>();
-
-  qesAnswer = { id: String, selections: [] };
-
   isDoing = true;
 
   @Watch('numCurrent')
@@ -104,13 +100,12 @@ export default class Question extends Vue {
 
   // eslint-disable-next-line class-methods-use-this
   async submitQesFn() {
-    console.log('交卷');
-    this.answers = this.qesList.map((question: QuestionModel) => {
+    const answers = this.qesList.map((question: QuestionModel) => {
       this.isDoing = false;
       this.numCurrent += 1;
       return { id: question.id, selections: question.answer };
     });
-    await API.opstAssessments({ answers: this.answers });
+    await API.opstAssessments({ answers });
   }
 
   public async created() {
